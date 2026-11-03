@@ -178,6 +178,15 @@ class WorkflowTests(unittest.TestCase):
         self.h.extensions.operate(cid, plugin['id'], 'disable')
         self.assertNotIn('test-bundle', json.loads(profile.read_text())['dsh']['profile']['bundles'])
 
+    def test_installed_plugin_cannot_be_repointed_to_different_package(self):
+        plugin = self.h.extensions.save({'name': 'Original', 'kind': 'dsh', 'package': 'test-package@1.0.0'})
+        plugin['installed'] = [self.a['id']]
+        self.h.store.write('INSERT OR REPLACE INTO plugins VALUES (?,?)', (plugin['id'], json.dumps(plugin)))
+        with self.assertRaises(ValueError):
+            self.h.extensions.save({**plugin, 'package': 'another-package'})
+        self.h.extensions.save({**plugin, 'package': 'test-package@1.0.1'})
+        self.assertEqual(self.h.extensions.list()[0]['package'], 'test-package@1.0.1')
+
     def test_napcat_configuration_retains_other_channels_and_requires_selection(self):
         from personaweave.installers import configure_napcat
         root = Path(self.temp.name)/'runtime'/'napcat'/'napcat'/'config'

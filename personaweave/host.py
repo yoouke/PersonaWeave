@@ -99,7 +99,7 @@ class Host(RuntimeServices):
                 raise ValueError('未知主题字段：'+key)
 
     def save_character(self, data):
-        if data.get('id') in self.busy:
+        if data.get('id') in self.busy or data.get('id') in self.maintenance:
             raise ValueError('请先停止角色')
         return self.store.save_character(data)
 

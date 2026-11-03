@@ -85,7 +85,11 @@ class Extensions:
                   'bundles': prior.get('bundles', {}), 'entry_id': str(data.get('entry_id', prior.get('entry_id', '')))[:120]}
         if not isinstance(plugin['permissions'], list) or not isinstance(plugin['schema'], dict):
             raise ValueError('权限须为列表、配置 Schema 须为对象')
-        if prior and any(cid in self.host.busy for cid in prior['installed']):
+        old_name = prior.get('package', '').rsplit('@',1)[0] if '@' in prior.get('package', '')[1:] else prior.get('package', '')
+        new_name = package.rsplit('@',1)[0] if '@' in package[1:] else package
+        if prior.get('installed') and (old_name != new_name or prior['kind'] != kind):
+            raise ValueError('已安装插件不能改为另一个包或类型，请先卸载或新建定义')
+        if prior and any(cid in self.host.busy or cid in self.host.maintenance for cid in prior['installed']):
             raise ValueError('请停止相关角色再修改插件配置')
         self.store.write('INSERT OR REPLACE INTO plugins VALUES (?,?)', (pid, json.dumps(plugin, ensure_ascii=False)))
         return plugin

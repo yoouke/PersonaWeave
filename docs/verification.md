@@ -29,7 +29,7 @@
 
 ## 0.2.0 本地扩展验证
 
-- 31 项 Python 测试全部通过（设置 PW_DSH_BIN 包含真实 DSH 测试）。
+- 32 项 Python 测试全部通过（设置 PW_DSH_BIN 包含真实 DSH 测试）。
 - 实际安装 npm `@deepseek-ai/dsh@0.2.1-rc.5`，SDK 初始化成功。
 - 真实 DSH 通过宿主配置的兼容适配器调用本机 SSE 模拟模型，收到人格内容，完成任务并返回 100 输入 / 5 输出 Token。
 - OneBot 实际 WebSocket 模拟端校验认证、投递重复事件，单次调用并返回经确认的私聊回复。
