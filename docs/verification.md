@@ -111,3 +111,11 @@
 - Windows 安装包、便携版、冻结程序 HTTP 启动及页面资源检查全部通过：https://github.com/yoouke/PersonaWeave/actions/runs/41668565661
 - 下载：https://github.com/yoouke/PersonaWeave/actions/runs/41668565661/artifacts/13247461088
 - 以上不新增真实 QQ、付费模型、长期记忆插件效果或 Windows GUI 系统行为验收。
+
+## 0.2.6 Agent 运行上下文
+
+- 新增运行协作说明，覆盖宿主 DSH、原生 DSH、纯对话及通信人格同步路径。
+- 本地 53 项测试全部通过；真实 DSH 测试检查模型请求实际包含软件说明与用户人格，并检查本角色工作区说明文件。通信同步测试检查原生人格内容包含说明。
+- 新增纯对话注入与工具限制检查、公共说明导出及不改写工作区 AGENTS.md 的检查。
+- wheel 打包已确认包含说明 Markdown 与注入模块；Windows spec 显式包含说明资源。
+- Windows 软件构建及最终云端结果以本提交对应 CI 为准。真实 QQ、付费服务与 Windows 桌面系统行为的边界不变。

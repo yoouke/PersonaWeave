@@ -7,6 +7,7 @@ tray_hidden = collect_submodules('pystray')
 a = Analysis([str(root / 'entry.py')], pathex=[str(root)],
     binaries=web_bins,
     datas=web_datas + [(str(root/'personaweave'/'web'), 'personaweave/web'),
+                       (str(root/'personaweave'/'agent-guide.md'), 'personaweave'),
                        (str(root/'THIRD_PARTY_NOTICES.md'), '.'),
                        (str(root/'personaweave'/'vendor'/'LICENSE'), 'personaweave/vendor')],
     hiddenimports=web_hidden + tray_hidden + ['keyring.backends.Windows', 'win32timezone'],

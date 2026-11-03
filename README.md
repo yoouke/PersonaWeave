@@ -72,7 +72,7 @@ QQ 协议端可选择 NapCat，或连接自行安装的 SnowLuma 兼容端；同
 
 ## 下载与开始使用
 
-当前版本：**0.2.5 · 开发预览**。
+当前版本：**0.2.6 · 开发预览**。
 
 前往 [Windows 构建页面](https://github.com/yoouke/PersonaWeave/actions/workflows/windows.yml)，打开成功的构建记录，在 **Artifacts** 中下载 `PersonaWeave-Windows-x64`。下载构建产物通常需要登录 GitHub。
 
@@ -87,6 +87,12 @@ QQ 协议端可选择 NapCat，或连接自行安装的 SnowLuma 兼容端；同
 5. 准备插件、同步人格，完成连接检查。
 
 详细操作见 [使用指南](docs/getting-started.md)。只体验本机纯对话时，可以先完成前两步。
+
+## Agent 如何理解织灵
+
+程序会把[运行协作说明](personaweave/agent-guide.md)送入 Agent 的上下文，让它了解软件定位、任务流程、记忆和插件的配合方式。DSH 启动时还会在角色工作区生成 `PERSONAWEAVE_CONTEXT.md`，供 Agent 随时查阅。
+
+说明保留用户的人格设定，具体执行能力仍由当前工具和授权决定。纯对话模式明确没有电脑工具；通信角色通过人格同步取得说明。详见 [Agent 运行上下文](docs/agent-integration.md)。
 
 ## 本地数据与权限
 

@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from .store import Store, Vault, atomic_text
 from .engine import DshEngine
+from .agent_context import persona_text, export_context
 from .platforms import OneBot
 from .runtime import RuntimeServices, extract_result
 from .models import Models, endpoint
@@ -252,7 +253,7 @@ class Host(RuntimeServices):
             if char.get('engine', 'dsh') == 'dsh' and tools:
                 answer = self.run_dsh(tid, cid, audience, text, context, images)
             else:
-                messages = [{'role': 'system', 'content': char['personality']+'\n'+char.get('behavior', '')+'\n'+context+'\n此对话没有电脑操作或插件工具；不要声称已执行操作。'}]
+                messages = [{'role': 'system', 'content': persona_text(char, 'chat')+'\n'+context+'\n此对话没有电脑操作或插件工具；不要声称已执行操作。'}]
                 for item in self.store.history(cid, audience, 12):
                     messages.extend([{'role': 'user', 'content': item['user']}, {'role': 'assistant', 'content': item['assistant']}])
                 content = text
@@ -296,9 +297,10 @@ class Host(RuntimeServices):
         base = self.store.root/'Characters'/cid
         home = base/'config'/'dsh'
         home.mkdir(parents=True, exist_ok=True)
+        export_context(base/'workspace', 'sdk')
         rows, docs = self.extensions.patch(cid)
         patch = base/'config'/'persona.patch.json'
-        overlay = [{'id': 'system-prompt', 'config': {'personaPrefix': char['personality']+'\n'+char.get('behavior', '')+'\n'+docs}},
+        overlay = [{'id': 'system-prompt', 'config': {'personaPrefix': persona_text(char, 'sdk')+'\n'+docs}},
                    {'id': 'credentials', 'disabled': False, 'config': {'path': str(home/'host-empty-credentials.yml'), 'watch': False}},
                    {'id': 'authorization', 'disabled': True}, {'id': 'deepseek-account', 'disabled': True},
                    {'id': 'tool-plugin-manager', 'disabled': True}]

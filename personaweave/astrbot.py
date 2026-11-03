@@ -9,6 +9,7 @@ import time
 from urllib.parse import quote, urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, build_opener
 from .vendor.astrbot_api import Api
+from .agent_context import persona_text
 
 
 # The six identifiers below come from DSQQ's MIT config pack, not npm search.
@@ -218,7 +219,7 @@ class AstrBotPlugins:
 
     @staticmethod
     def persona_digest(char):
-        return hashlib.sha256((char['personality']+'\n'+char.get('behavior', '')).encode()).hexdigest()
+        return hashlib.sha256(persona_text(char, 'astrbot').encode()).hexdigest()
 
     def sync_status(self, cid):
         char = self.store.character(cid)
@@ -256,7 +257,7 @@ class AstrBotPlugins:
         current = api.call('GET', path)
         if not Api.ok(current) and current.get('_http') != 404:
             self.checked(current)
-        body = {'system_prompt': char['personality']+'\n'+char.get('behavior', ''), 'tools': None}
+        body = {'system_prompt': persona_text(char, 'astrbot'), 'tools': None}
         exists = Api.ok(current) and isinstance(current.get('data'), dict) and current['data'].get('persona_id') == persona_id
         if exists:
             self.checked(api.call('PUT', path, body))

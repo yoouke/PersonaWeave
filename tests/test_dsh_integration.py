@@ -50,6 +50,10 @@ class RealDshTests(unittest.TestCase):
                     self.assertNotIn(authenticated.split('token=')[1], log)
                     self.assertNotIn('token=', json.dumps(host.config()))
                     self.assertIsNone(host.services['dsh-web'].poll())
+                    native_patch = json.loads((host.store.root/'Characters'/char['id']/'config'/'native-web.patch.json').read_text(encoding='utf-8'))
+                    self.assertIn('织灵（PersonaWeave）', native_patch[0]['config']['personaPrefix'])
+                    self.assertIn('WEB-PERSONA', native_patch[0]['config']['personaPrefix'])
+                    self.assertTrue((host.store.root/'Characters'/char['id']/'workspace'/'PERSONAWEAVE_CONTEXT.md').is_file())
                 finally:
                     host.close()
                     host.store.db.close()
@@ -85,6 +89,8 @@ class RealDshTests(unittest.TestCase):
                     self.assertEqual(result['answer'], 'LOCAL-DSH-VERIFIED')
                     self.assertTrue(requests)
                     self.assertIn('PERSONA-ISOLATION-MARKER', json.dumps(requests))
+                    self.assertIn('织灵（PersonaWeave）', json.dumps(requests, ensure_ascii=False))
+                    self.assertTrue((host.store.root/'Characters'/char['id']/'workspace'/'PERSONAWEAVE_CONTEXT.md').is_file())
                     self.assertEqual(host.models.report()['groups'][0]['input_tokens'], 100)
                 finally:
                     host.close()

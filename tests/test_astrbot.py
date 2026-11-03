@@ -174,6 +174,8 @@ class AstrBotTests(unittest.TestCase):
         self.h.astrbot.sync_persona(self.a['id'])
         created = next(body for method, path, body in self.calls if method == 'POST' and path == '/api/v1/personas')
         self.assertIn('USER-CREATED-PERSONA', created['system_prompt'])
+        self.assertIn('织灵（PersonaWeave）', created['system_prompt'])
+        self.assertIn('当前为通信角色环境', created['system_prompt'])
         self.assertEqual(created['persona_id'], 'personaweave-'+self.a['id'])
         saved = next(body['config'] for method, path, body in self.calls if method == 'PUT' and path == '/api/v1/config-profiles/default')
         self.assertEqual(saved['platform'], self.config['platform'])
@@ -187,26 +189,6 @@ class AstrBotTests(unittest.TestCase):
         self.assertIn(self.a['id'], run.call_args.kwargs['env']['DSH_HOME'])
         self.assertEqual(self.h.extensions.list(), [])
 
-    def test_only_literal_loopback_and_no_credential_redirect(self):
-        for url in ('https://example.com:443', 'http://localhost:6185', 'http://secret@127.0.0.1:6185', self.url+'?x=1', self.url+'/api'):
-            with self.assertRaises(ValueError):
-                local_url(url)
-        class Redirect(BaseHTTPRequestHandler):
-            def do_POST(self):
-                self.send_response(307)
-                self.send_header('Location', 'https://example.com/steal')
-                self.end_headers()
-            def log_message(self, *args):
-                pass
-        s = ThreadingHTTPServer(('127.0.0.1', 0), Redirect)
-        threading.Thread(target=s.serve_forever, daemon=True).start()
-        try:
-            with self.assertRaises(ValueError):
-                LocalApi('http://127.0.0.1:'+str(s.server_port)).login('user', 'PRIVATE')
-        finally:
-            s.shutdown()
-            s.server_close()
-
     def test_auto_sync_save_retry_and_opt_out(self):
         self.bind()
         cid = self.a['id']
@@ -216,7 +198,7 @@ class AstrBotTests(unittest.TestCase):
         self.assertFalse(self.h.astrbot.sync_status(cid)['pending'])
         before = len(self.calls)
         self.h.save_character({**saved, 'name': 'renamed'})
-        self.assertEqual(len(self.calls), before)
+        self.assertEqual(len(self.calls), before)  # No redundant upstream write.
         self.config['admins_id'] = ['11111', '22222']
         saved = self.h.save_character({**saved, 'personality': 'PENDING'})
         self.assertFalse(saved['upstream_sync']['ok'])
@@ -301,3 +283,23 @@ class AstrBotTests(unittest.TestCase):
                     time.sleep(.01)
                 self.assertEqual(self.h.jobs[task['id']]['state'], 'error')
                 self.assertIn('qq', self.h.jobs[task['id']]['error'])
+
+    def test_only_literal_loopback_and_no_credential_redirect(self):
+        for url in ('https://example.com:443', 'http://localhost:6185', 'http://secret@127.0.0.1:6185', self.url+'?x=1', self.url+'/api'):
+            with self.assertRaises(ValueError):
+                local_url(url)
+        class Redirect(BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.send_response(307)
+                self.send_header('Location', 'https://example.com/steal')
+                self.end_headers()
+            def log_message(self, *args):
+                pass
+        s = ThreadingHTTPServer(('127.0.0.1', 0), Redirect)
+        threading.Thread(target=s.serve_forever, daemon=True).start()
+        try:
+            with self.assertRaises(ValueError):
+                LocalApi('http://127.0.0.1:'+str(s.server_port)).login('user', 'PRIVATE')
+        finally:
+            s.shutdown()
+            s.server_close()

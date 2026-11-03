@@ -1,6 +1,7 @@
 """Runtime installers, process ownership and native DSH package operations."""
 import json, os, re, shutil, subprocess, threading, time, uuid
 from pathlib import Path
+from .agent_context import persona_text, export_context
 
 class RuntimeServices:
     def install_native(self, capability, cid=None):
@@ -48,7 +49,8 @@ class RuntimeServices:
                 except OSError:
                     raise ValueError('DSH 控制台端口被占用；不会接管或终止外部进程')
             # Keep the native permission/approval services; no unconditional tool grants.
-            patch = [{'id': 'system-prompt', 'config': {'personaPrefix': char['personality']+'\n'+char.get('behavior', '')}},
+            export_context(base/'workspace', 'web')
+            patch = [{'id': 'system-prompt', 'config': {'personaPrefix': persona_text(char, 'web')}},
                      {'id': 'deepseek-account', 'disabled': True}]
             if c['provider'] == 'personaweave':
                 if not c['model']:
