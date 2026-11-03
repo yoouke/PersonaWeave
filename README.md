@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/yoouke/PersonaWeave/actions/workflows/windows.yml">下载 Windows 版</a> ·
+  <a href="https://github.com/yoouke/PersonaWeave/releases/tag/v0.2.6">下载 Windows 版</a> ·
   <a href="docs/getting-started.md">使用指南</a> ·
   <a href="docs/plugins.md">插件与扩展</a> ·
   <a href="docs/coverage.md">功能状态</a>
@@ -26,6 +26,18 @@
 从一句描述开始创作，或者直接导入已有设定。每个角色都有独立的资料、工作目录和配置，你可以随时修改、备份和带走这些内容。
 
 **角色由你定义。** 织灵提供创作和运行工具，不附带固定人格，也不要求使用预设性格模板。
+
+## 界面预览
+
+以下为程序在 Chromium 浏览器模式下的实际界面，使用测试角色和测试数据；不是 Windows 原生窗口验收截图。
+
+**运行总览**
+
+![织灵运行总览](docs/images/overview.webp)
+
+**人格工坊**
+
+![织灵人格工坊](docs/images/character-studio.webp)
 
 ## 你可以做什么
 
@@ -74,9 +86,15 @@ QQ 协议端可选择 NapCat，或连接自行安装的 SnowLuma 兼容端；同
 
 当前版本：**0.2.6 · 开发预览**。
 
-前往 [Windows 构建页面](https://github.com/yoouke/PersonaWeave/actions/workflows/windows.yml)，打开成功的构建记录，在 **Artifacts** 中下载 `PersonaWeave-Windows-x64`。下载构建产物通常需要登录 GitHub。
+前往 [0.2.6 下载页](https://github.com/yoouke/PersonaWeave/releases/tag/v0.2.6)，在 **Assets** 中选择：
 
-压缩包提供安装程序、便携版和校验文件。软件包含 Python 与桌面依赖；Windows 还需要 WebView2 运行时。Node.js、DSH 及通信服务按使用需要另外准备，安装包暂未签名。
+- `PersonaWeave-0.2.6-Windows-x64-Setup.exe`：安装版。
+- `PersonaWeave-0.2.6-Windows-x64-Portable.zip`：便携版。
+- `SHA256SUMS.txt`：文件校验值。
+
+公开 Release 附件无需登录 GitHub 即可下载。后续开发构建仍可在 [Windows 构建页面](https://github.com/yoouke/PersonaWeave/actions/workflows/windows.yml) 获取，Actions 产物下载通常需要登录。
+
+软件包含 Python 与桌面依赖；Windows 还需要 WebView2 运行时。Node.js、DSH 及通信服务按使用需要另外准备，安装包暂未签名。
 
 首次使用的主要步骤：
 

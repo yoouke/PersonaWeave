@@ -1,10 +1,10 @@
 # 织灵使用指南
 
-本指南对应 0.2.5 开发预览版。首次使用建议先完成本机对话，再配置 QQ 和 Agent 任务。
+本指南对应 0.2.6 开发预览版。首次使用建议先完成本机对话，再配置 QQ 和 Agent 任务。
 
 ## 1. 安装与启动
 
-从 [Windows 构建页面](https://github.com/yoouke/PersonaWeave/actions/workflows/windows.yml) 选择成功的构建，在 Artifacts 下载软件压缩包。解压后使用 Setup.exe 安装，或解压 Portable.zip 运行便携版。包内的 SHA256SUMS 用于核对文件。
+从 [0.2.6 下载页](https://github.com/yoouke/PersonaWeave/releases/tag/v0.2.6) 的 Assets 下载文件，无需登录 GitHub。选择 `Setup.exe` 安装版，或解压 `Portable.zip` 使用便携版；同时下载 `SHA256SUMS.txt`，用于核对文件。开发过程中的构建产物仍可在 [Windows 构建页面](https://github.com/yoouke/PersonaWeave/actions/workflows/windows.yml) 获取。
 
 软件已包含 Python 和桌面依赖。桌面窗口需要 WebView2；Agent 引擎、通信服务与插件按所选功能准备。
 
