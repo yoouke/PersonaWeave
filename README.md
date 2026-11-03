@@ -1,4 +1,4 @@
-<p align="center"><img src="personaweave/web/icon.svg" width="104" height="104" alt="织灵 · 折光蝶 Logo"></p>
+<p align="center"><img src="personaweave/web/icon.svg" width="104" height="104" alt="织灵 · 几何蝶 Logo"></p>
 
 # 织灵 · PersonaWeave
 
@@ -8,7 +8,7 @@
 
 [Windows 软件构建与下载](https://github.com/yoouke/PersonaWeave/actions/workflows/windows.yml) · [功能与验证范围](docs/coverage.md) · [插件接入规范](docs/plugins.md) · [验证记录](docs/verification.md)
 
-当前软件版本 **0.2.3 开发预览**。已有实际功能和跨模块测试，不等于 PRD 全部验收完成。没有通过真实 QQ 账号、第三方模型服务、Windows 安装卸载/休眠恢复的端到端验收。未来能力与未验证项不伪装为已完成。
+当前软件版本 **0.2.4 开发预览**。已有实际功能和跨模块测试，不等于 PRD 全部验收完成。没有通过真实 QQ 账号、第三方模型服务、Windows 安装卸载/休眠恢复的端到端验收。未来能力与未验证项不伪装为已完成。
 
 **0.2.2 优先复用 [DSQQ](https://github.com/Jack-Cherish/DSQQ) 的 AstrBot / NapCat 及同款插件生态。**
 新增已有实例连接、原生插件管理、现成 AstrBot→DSH 桥和 `dsh-image-gen` 安装入口。
@@ -17,7 +17,7 @@
 
 ## 视觉设计
 
-原创「折光蝶」Logo，紫色图标底与杏桃色核心；界面延续月光紫 / 杏桃 / 雾白。统一工作空间、人格工坊、配置页面、空状态、图标与托盘视觉；保留自定义主题。见 [视觉规范与源文件](design/README.md)。
+原创「几何蝶」Logo，以四块大小、角度不同的圆角矩形构成，采用单色与透明背景；界面延续月光紫 / 杏桃 / 雾白。统一工作空间、人格工坊、配置页面、空状态、图标与托盘视觉；保留自定义主题。见 [视觉规范与源文件](design/README.md)。
 
 ## 功能
 
@@ -39,7 +39,7 @@
 
 ## 安装与使用
 
-普通用户从绿色 **Windows software** 构建的 Artifacts 下载 ZIP，解压后运行 `PersonaWeave-0.2.3-Windows-x64-Setup.exe`，或使用 Portable ZIP。软件包包含 Python 与桌面依赖，无需自行安装 Python。安装包未签名。Windows 需要微软 WebView2 运行时。
+普通用户从绿色 **Windows software** 构建的 Artifacts 下载 ZIP，解压后运行 `PersonaWeave-0.2.4-Windows-x64-Setup.exe`，或使用 Portable ZIP。软件包包含 Python 与桌面依赖，无需自行安装 Python。安装包未签名。Windows 需要微软 WebView2 运行时。
 
 1. 打开「偏好与安全」，填写运行 API 地址、模型、Key；创作 API 单独填写，并测试连接。
 2. DSH 路由默认 `personaweave`，由宿主配置为下方兼容 API；使用官方原生 Messages 路由时可选择 `deepseek-official`，其认证与接口由 DSH 管理。上下文大小需按模型实际能力设置。
