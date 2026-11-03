@@ -14,6 +14,7 @@ from .platforms import OneBot
 from .runtime import RuntimeServices, extract_result
 from .models import Models, endpoint
 from .extensions import Extensions
+from .astrbot import AstrBotPlugins
 
 DEFAULTS = dict(bot_qq='', owner='', character_id='', protocol='napcat', onebot_url='ws://127.0.0.1:3001', provider='personaweave', model='',
                 runtime_url='https://api.deepseek.com/v1', context_window=131072, max_output_tokens=8192, creation_url='', creation_model='', search_provider='searxng', search_url='',
@@ -33,6 +34,7 @@ class Host(RuntimeServices):
         self.channel, self.channels = None, {}
         self.models = Models(self.store, self.vault, self.config)
         self.extensions = Extensions(self)
+        self.astrbot = AstrBotPlugins(self)
         self.stopping = threading.Event()
         self.recovery_attempts = 0
 
@@ -124,6 +126,13 @@ class Host(RuntimeServices):
         if not c['owner'] or not c['character_id']:
             raise ValueError('先设置主人 QQ 和默认角色')
         self.store.character(c['character_id'])
+        if c['character_id'] in self.astrbot.bindings():
+            if self.channel:
+                self.channel.close()
+                self.channel = None
+            self.channels.pop('qq', None)
+            self.astrbot.catalog(c['character_id'])
+            return {'ok': True, 'message': 'AstrBot 插件接口正常；QQ 消息由其原生插件处理，登录状态请查看 AstrBot / NapCat 控制台。'}
         if self.channel:
             self.channel.close()
         self.channel = OneBot(c['onebot_url'], self.vault.get('onebot_token'), self.receive)
@@ -395,9 +404,14 @@ class Host(RuntimeServices):
         return self.models.create(data)
 
     def job(self, action):
+        if action == 'napcat' and self.config()['character_id'] in self.astrbot.bindings():
+            raise ValueError('已复用 DSQQ / AstrBot 的协议端，不再重复安装 NapCat')
         operations = {'node': lambda: __import__('personaweave.installers', fromlist=['install_node']).install_node(self.store.root),
                       'dsh': self.install_dsh, 'napcat': lambda: __import__('personaweave.installers', fromlist=['install_napcat']).install_napcat(self.store.root, self.config()['protocol']),
-                      'relink': self.relink, 'backup': self.store.backup}
+                      'relink': self.relink, 'backup': self.store.backup,
+                      'native_ingress': lambda: self.install_native('ingress'),
+                      'native_image': lambda: self.install_native('image'),
+                      'native_web': self.start_native_web}
         if action not in operations:
             raise ValueError('无效后台任务')
         with self.lock:
@@ -418,7 +432,7 @@ class Host(RuntimeServices):
     def relink(self):
         checks = []
         c = self.config()
-        if c['auto_start_protocol'] and c['protocol'] == 'napcat':
+        if c['auto_start_protocol'] and c['protocol'] == 'napcat' and c['character_id'] not in self.astrbot.bindings():
             try:
                 checks.append({'service': 'NapCat', **self.start_protocol()})
             except Exception as e:
@@ -449,6 +463,8 @@ class Host(RuntimeServices):
         threading.Thread(target=watch, daemon=True).start()
 
     def configure_protocol(self):
+        if self.config()['character_id'] in self.astrbot.bindings():
+            raise ValueError('该角色已复用 DSQQ / AstrBot；请在其原生控制台配置协议端，避免重复连接')
         if self.config()['protocol'] != 'napcat':
             raise ValueError('SnowLuma 请在其官方程序配置')
         process = self.services.get('napcat')
@@ -459,6 +475,14 @@ class Host(RuntimeServices):
         return configure_napcat(self.store.root, c['bot_qq'], c['onebot_url'], self.vault.get('onebot_token'))
 
     def console(self, kind):
+        if kind == 'dsh':
+            owned = self.services.get('dsh-web')
+            if owned and owned.poll() is None:
+                url = getattr(self, 'native_web_url', None)
+                if not url:
+                    raise ValueError('原生 DSH 控制台正在启动，请稍后再打开')
+                webbrowser.open(url)
+                return {'ok': True}
         url = self.config().get(kind+'_console_url', '')
         parsed = urlsplit(url)
         if parsed.hostname not in ('127.0.0.1', 'localhost', '::1') or parsed.scheme not in ('http', 'https'):
@@ -493,5 +517,6 @@ class Host(RuntimeServices):
         for channel in list(self.channels.values()):
             channel.close()
         self.stop_protocol()
+        self.stop_native_web()
         for cid in list(self.busy):
             self.cancel(cid)

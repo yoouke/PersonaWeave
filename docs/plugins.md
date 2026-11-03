@@ -2,6 +2,11 @@
 
 优先复用 DSH 原生插件和 Skill。宿主只负责安装、配置、权限入口与按角色选择，不重复实现原生工具。
 
+0.2.2 新增 [DSQQ 同款插件接入](dsqq-reuse.md)，插件页面优先展示现有 AstrBot 插件，
+通过原生 API 安装、启停、更新和读取状态。画图复用 `dsh-image-gen`，桥接复用
+`astrbot_plugin_dsh` / `dsh-astrbot-ingress`，保留原生 web profile 和控制台。
+下文描述的 SDK / MCP 高级注册路径仍供已有配置使用，两种插件宿主分别管理。
+
 ## 原生模块与 Bundle
 
 在「插件与能力」登记 npm 包名（建议确切版本）、文档、使用说明与权限。安装后默认关闭。DSH CLI 自动启用 Bundle 的行为会被宿主重新分离为「安装」与「启用」。Bundle 通过原生 profile bundles 列表启用；单模块通过宿主 invocation overlay 的 insert 加载。一个角色的开关不会修改其他角色配置。

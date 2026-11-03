@@ -5,6 +5,9 @@ import tempfile
 import threading
 import time
 import unittest
+import socket
+import urllib.request
+from http.cookiejar import CookieJar
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest.mock import patch
 from personaweave.host import Host
@@ -12,6 +15,45 @@ from personaweave.host import Host
 
 @unittest.skipUnless(os.environ.get('PW_DSH_BIN'), 'Set PW_DSH_BIN to a verified DSH CLI JS entry')
 class RealDshTests(unittest.TestCase):
+    def test_actual_native_web_profile_serves_official_console(self):
+        with tempfile.TemporaryDirectory() as root:
+            host = Host(root)
+            char = host.store.save_character({'name': '原生插件验证', 'personality': 'WEB-PERSONA'})
+            with socket.socket() as port_socket:
+                port_socket.bind(('127.0.0.1', 0))
+                port = port_socket.getsockname()[1]
+            url = f'http://127.0.0.1:{port}'
+            host.configure({'character_id': char['id'], 'model': 'test-model', 'dsh_console_url': url})
+            with patch.object(host.vault, 'get', return_value='local-test-key'), patch.object(host, 'command', return_value=['node', os.environ['PW_DSH_BIN']]):
+                try:
+                    host.start_native_web()
+                    html = ''
+                    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), urllib.request.HTTPCookieProcessor(CookieJar()))
+                    last_error = 'waiting for authenticated URL'
+                    deadline = time.monotonic()+45
+                    while time.monotonic() < deadline:
+                        if host.services['dsh-web'].poll() is not None:
+                            break
+                        authenticated = getattr(host, 'native_web_url', None)
+                        if not authenticated:
+                            time.sleep(.2)
+                            continue
+                        try:
+                            with opener.open(authenticated, timeout=1) as response:
+                                html = response.read().decode()
+                            break
+                        except OSError as exc:
+                            last_error = str(type(exc).__name__)+': '+str(getattr(exc, 'code', 'connection failed'))
+                            time.sleep(.2)
+                    log = (host.store.root/'logs'/'dsh-web.log').read_text(encoding='utf-8', errors='replace')
+                    self.assertIn('DeepSeek Harness', html, last_error+'\n'+log[-4000:])
+                    self.assertNotIn(authenticated.split('token=')[1], log)
+                    self.assertNotIn('token=', json.dumps(host.config()))
+                    self.assertIsNone(host.services['dsh-web'].poll())
+                finally:
+                    host.close()
+                    host.store.db.close()
+
     def test_actual_runtime_prompt_response_and_usage(self):
         requests = []
         class Handler(BaseHTTPRequestHandler):

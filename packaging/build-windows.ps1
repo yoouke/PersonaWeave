@@ -7,7 +7,7 @@ python -m unittest discover -s tests -v
 if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
 python -m PyInstaller --noconfirm packaging/windows.spec
 if ($LASTEXITCODE -ne 0) { throw 'Executable build failed.' }
-Compress-Archive -Path dist/PersonaWeave/* -DestinationPath dist/PersonaWeave-0.2.1-Windows-x64-Portable.zip -Force
+Compress-Archive -Path dist/PersonaWeave/* -DestinationPath dist/PersonaWeave-0.2.2-Windows-x64-Portable.zip -Force
 $isccCommand = Get-Command ISCC.exe -ErrorAction SilentlyContinue
 $isccPath = if ($isccCommand) { $isccCommand.Source } else { $null }
 if (-not $isccPath) {

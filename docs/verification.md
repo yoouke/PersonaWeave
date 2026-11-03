@@ -63,3 +63,20 @@
 - Linux / Windows 回归、真实 DSH 本机模型及 Chromium 界面流程成功：https://github.com/yoouke/1/actions/runs/41641387728
 - Artifact 提供 0.2.1 Setup.exe、Portable.zip 与 SHA256SUMS：https://github.com/yoouke/1/actions/runs/41641387700/artifacts/13231839614
 - 本地 wheel 包含全部六项页面与品牌资源；ICO 包含 16–256px 共七个尺寸。
+
+## 0.2.2 上游插件复用验证
+
+- 使用 DSQQ 指定仓库的 GitHub 插件读取源码、配置包和许可；核对 AstrBot 4.29.3 原生 API，
+  区分 AstrBot 插件与 DSH 插件，未继续将 DSQQ 描述为 DSH QQ 插件。
+- 两个 npm 确切版本已经查询并实际通过 DSH 官方 CLI 安装：
+  `dsh-astrbot-ingress@0.3.23`、`dsh-image-gen@0.10.2`。
+- 在独立本机验证目录加载两个原生插件并启动真实 DSH web profile：认证网页可打开，
+  ingress `/health` 返回 `ok: true`、`plugin: dsh-astrbot-ingress` 及能力列表。
+  唯一 pending 条目为宿主停用登录账户后等待该服务的 account-controller。
+- 原生网页认证 URL 从 DSH 输出取得，只存于进程内存；日志隐藏 token，原生控制台打开流程
+  已用真实 DSH 和 CookieJar 验证。DSH→本机模拟模型的 SDK 回归仍通过。
+- 新增本机 AstrBot HTTP 合约测试，覆盖真实列表委托、市场安装、重复安装跳过、按角色排他、
+  私密凭据不进入设置、重定向拒绝、管理员/群聊白名单拒绝及不再启动自有 QQ 桥。
+- 覆盖本角色进程信标匹配后自动配置原生桥、用户人格通过原生 API 同步且保留平台配置。
+- 未登录真实 QQ，未完成真实 AstrBot 插件依赖加载、长期记忆检索、付费图像生成或 QQ 图片回传。
+  不能将 HTTP 合约测试和 ingress 存活检查写成这些功能的端到端验收。

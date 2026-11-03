@@ -32,6 +32,8 @@ jobs:
             if (-not $ready) { throw 'Frozen application startup failed.' }
             $script = Invoke-WebRequest http://127.0.0.1:18742/app.js -UseBasicParsing
             if ($script.StatusCode -ne 200) { throw 'Bundled assets unavailable.' }
+            $upstream = Invoke-WebRequest http://127.0.0.1:18742/upstream.js -UseBasicParsing
+            if ($upstream.Content -notmatch 'upstreamPlugins') { throw 'Upstream plugin UI unavailable.' }
           } finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
           }

@@ -6,7 +6,12 @@
 
 [Windows 软件构建与下载](https://github.com/yoouke/1/actions/workflows/windows.yml) · [功能与验证范围](docs/coverage.md) · [插件接入规范](docs/plugins.md) · [验证记录](docs/verification.md)
 
-当前软件版本 **0.2.1 开发预览**。已有实际功能和跨模块测试，不等于 PRD 全部验收完成。没有通过真实 QQ 账号、第三方模型服务、Windows 安装卸载/休眠恢复的端到端验收。未来能力与未验证项不伪装为已完成。
+当前软件版本 **0.2.2 开发预览**。已有实际功能和跨模块测试，不等于 PRD 全部验收完成。没有通过真实 QQ 账号、第三方模型服务、Windows 安装卸载/休眠恢复的端到端验收。未来能力与未验证项不伪装为已完成。
+
+**0.2.2 优先复用 [DSQQ](https://github.com/Jack-Cherish/DSQQ) 的 AstrBot / NapCat 及同款插件生态。**
+新增已有实例连接、原生插件管理、现成 AstrBot→DSH 桥和 `dsh-image-gen` 安装入口。
+实际组件、操作流程及隔离/迁移边界见 [DSQQ 复用说明](docs/dsqq-reuse.md)。
+不自动套用“大肥鱼”固定人格，不声称插件清单已在用户电脑全部安装或验收。
 
 ## 视觉设计
 
@@ -32,7 +37,7 @@
 
 ## 安装与使用
 
-普通用户从绿色 **Windows software** 构建的 Artifacts 下载 ZIP，解压后运行 `PersonaWeave-0.2.1-Windows-x64-Setup.exe`，或使用 Portable ZIP。软件包包含 Python 与桌面依赖，无需自行安装 Python。安装包未签名。Windows 需要微软 WebView2 运行时。
+普通用户从绿色 **Windows software** 构建的 Artifacts 下载 ZIP，解压后运行 `PersonaWeave-0.2.2-Windows-x64-Setup.exe`，或使用 Portable ZIP。软件包包含 Python 与桌面依赖，无需自行安装 Python。安装包未签名。Windows 需要微软 WebView2 运行时。
 
 1. 打开「偏好与安全」，填写运行 API 地址、模型、Key；创作 API 单独填写，并测试连接。
 2. DSH 路由默认 `personaweave`，由宿主配置为下方兼容 API；使用官方原生 Messages 路由时可选择 `deepseek-official`，其认证与接口由 DSH 管理。上下文大小需按模型实际能力设置。

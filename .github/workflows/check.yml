@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: '24'
       - run: node --check personaweave/web/app.js
+      - run: node --check personaweave/web/upstream.js
 
   integration:
     runs-on: ubuntu-latest

@@ -6,7 +6,9 @@ web_datas, web_bins, web_hidden = collect_all('webview')
 tray_hidden = collect_submodules('pystray')
 a = Analysis([str(root / 'entry.py')], pathex=[str(root)],
     binaries=web_bins,
-    datas=web_datas + [(str(root/'personaweave'/'web'), 'personaweave/web')],
+    datas=web_datas + [(str(root/'personaweave'/'web'), 'personaweave/web'),
+                       (str(root/'THIRD_PARTY_NOTICES.md'), '.'),
+                       (str(root/'personaweave'/'vendor'/'LICENSE'), 'personaweave/vendor')],
     hiddenimports=web_hidden + tray_hidden + ['keyring.backends.Windows', 'win32timezone'],
     hookspath=[], runtime_hooks=[], excludes=['tkinter'], noarchive=False)
 pyz = PYZ(a.pure)

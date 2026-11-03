@@ -48,7 +48,7 @@ def server(host, port=0):
                 if origin and origin != 'http://'+expected:
                     return self.respond({'error': 'Invalid Origin'}, 403)
             else:
-                assets = {'/': ('index.html', 'text/html'), '/app.js': ('app.js', 'text/javascript'), '/style.css': ('style.css', 'text/css'), '/logo.svg': ('logo.svg','image/svg+xml'), '/icon.svg': ('icon.svg','image/svg+xml'), '/icon.png': ('icon.png','image/png')}
+                assets = {'/': ('index.html', 'text/html'), '/app.js': ('app.js', 'text/javascript'), '/upstream.js': ('upstream.js', 'text/javascript'), '/style.css': ('style.css', 'text/css'), '/logo.svg': ('logo.svg','image/svg+xml'), '/icon.svg': ('icon.svg','image/svg+xml'), '/icon.png': ('icon.png','image/png')}
                 if post or path not in assets:
                     return self.respond({}, 404)
                 file, typ = assets[path]
@@ -65,6 +65,7 @@ def server(host, port=0):
                 if not post:
                     routes = {'/api/status': host.status, '/api/config': host.config, '/api/characters': host.store.characters,
                               '/api/diagnostics': host.diagnostics, '/api/extensions': host.extensions.list,
+                              '/api/astrbot/catalog': lambda: host.astrbot.catalog(query.get('character_id', [''])[0]),
                               '/api/usage': lambda: host.models.report(query.get('days', ['30'])[0]),
                               '/api/events': lambda: host.store.rows('SELECT * FROM events WHERE id>? ORDER BY id DESC LIMIT 100', (int(query.get('after', ['0'])[0]),)),
                               '/api/setup': lambda: self.setup_info()}
@@ -104,6 +105,12 @@ def server(host, port=0):
                     '/api/extensions/save': lambda: host.extensions.save(data),
                     '/api/extensions/operate': lambda: host.extensions.operate(cid, data['id'], data['action']),
                     '/api/extensions/secret': lambda: host.extensions.secret(data['name'], data['value']),
+                    '/api/astrbot/bind': lambda: host.astrbot.bind(data),
+                    '/api/astrbot/unbind': lambda: host.astrbot.unbind(cid),
+                    '/api/astrbot/operate': lambda: host.astrbot.operate(cid, data['id'], data['action']),
+                    '/api/astrbot/bridge': lambda: host.astrbot.bridge(cid, data['url'], data['token']),
+                    '/api/astrbot/persona': lambda: host.astrbot.sync_persona(cid),
+                    '/api/native/stop': host.stop_native_web,
                     '/api/memory/list': lambda: host.store.memories(cid, audience, data.get('query', '')),
                     '/api/memory/add': lambda: {'id': host.store.add_memory(cid, audience, data['content'], data.get('kind', 'event'))},
                     '/api/memory/edit': lambda: host.store.edit_memory(cid, data['id'], data['content'], audience, data.get('kind', 'event')),
