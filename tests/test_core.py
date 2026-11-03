@@ -13,7 +13,7 @@ class CoreTests(unittest.TestCase):
   a=self.s.save_character({'name':'A','personality':'原始设定'});b=self.s.save_character({'name':'B'})
   self.s.add_memory(a['id'],'owner','秘密');self.s.add_memory(a['id'],'public','公开');self.s.add_memory(b['id'],'owner','其他角色')
   self.assertEqual(len(self.s.memories(a['id'],'owner')),2);self.assertEqual([x['content'] for x in self.s.memories(a['id'],'stranger')],['公开'])
-  self.assertEqual((Path(self.tmp.name)/'Characters'/a['id']/'personality.md').read_text(),'原始设定')
+  self.assertEqual((Path(self.tmp.name)/'Characters'/a['id']/'personality.md').read_text(encoding='utf-8'),'原始设定')
  def test_invalid_path(self):
   with self.assertRaises(ValueError): self.s.character('../../escape')
  def test_failed_turn_not_success(self):
