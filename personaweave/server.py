@@ -48,7 +48,7 @@ def server(host, port=0):
                 if origin and origin != 'http://'+expected:
                     return self.respond({'error': 'Invalid Origin'}, 403)
             else:
-                assets = {'/': ('index.html', 'text/html'), '/app.js': ('app.js', 'text/javascript'), '/upstream.js': ('upstream.js', 'text/javascript'), '/style.css': ('style.css', 'text/css'), '/logo.svg': ('logo.svg','image/svg+xml'), '/icon.svg': ('icon.svg','image/svg+xml'), '/icon.png': ('icon.png','image/png')}
+                assets = {'/': ('index.html', 'text/html'), '/app.js': ('app.js', 'text/javascript'), '/upstream.js': ('upstream.js', 'text/javascript'), '/style.css': ('style.css', 'text/css'), '/logo.png': ('logo.png','image/png'), '/icon.png': ('icon.png','image/png')}
                 if post or path not in assets:
                     return self.respond({}, 404)
                 file, typ = assets[path]

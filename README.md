@@ -1,4 +1,4 @@
-<p align="center"><img src="personaweave/web/icon.svg" width="104" height="104" alt="织灵 · 几何蝶 Logo"></p>
+<p align="center"><img src="personaweave/web/icon.png" width="104" height="104" alt="织灵 · 蝶形 Logo"></p>
 
 # 织灵 · PersonaWeave
 
@@ -17,7 +17,7 @@
 
 ## 视觉设计
 
-原创「几何蝶」Logo，以四块大小、角度不同的圆角矩形构成，采用单色与透明背景；界面延续月光紫 / 杏桃 / 雾白。统一工作空间、人格工坊、配置页面、空状态、图标与托盘视觉；保留自定义主题。见 [视觉规范与源文件](design/README.md)。
+采用用户选定的紫色流线蝶形 Logo，保留透明度、渐变和光晕；界面延续月光紫 / 杏桃 / 雾白。统一工作空间、人格工坊、配置页面、空状态、图标与托盘视觉；保留自定义主题。见 [视觉规范与源文件](design/README.md)。
 
 ## 功能
 
