@@ -102,3 +102,12 @@
 - Chromium 验证角色、记忆、知识、十个页面、窄屏与刷新认证；检查一键准备、自动同步、逐项检查入口和未连接实例提示。
 - 最后补充维护失败状态传播及第 50 项测试后，本地执行环境断开，最终版本以 GitHub CI 结果为准；不将未取回的本地结果记为通过。
 - 真实 QQ、真实记忆插件服务、付费图像和 Windows 桌面系统行为仍未验证。
+
+### 0.2.5 云端最终结果
+
+- 源码提交：`3bbe16ac2ad629607d3d00a81edccdaad1968d42`。
+- Linux / Windows 回归、真实 DSH SDK 与原生网页、本机模拟模型以及 Chromium 流程全部通过：https://github.com/yoouke/PersonaWeave/actions/runs/41668565730
+- 集成作业执行全部 50 项测试，无跳过；浏览器包含新增准备、同步与连接检查入口。
+- Windows 安装包、便携版、冻结程序 HTTP 启动及页面资源检查全部通过：https://github.com/yoouke/PersonaWeave/actions/runs/41668565661
+- 下载：https://github.com/yoouke/PersonaWeave/actions/runs/41668565661/artifacts/13247461088
+- 以上不新增真实 QQ、付费模型、长期记忆插件效果或 Windows GUI 系统行为验收。
