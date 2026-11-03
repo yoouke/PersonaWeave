@@ -38,3 +38,12 @@
 - 新增 CI 持续执行以上集成与界面流程；Windows 新版构建结果须以对应 Actions 结果为准。
 
 仍未登录真实 QQ / Telegram / Discord，未使用真实付费 API；未完成 Windows GUI 托盘、自启动、安装卸载、系统重启和休眠实测。
+
+## 0.2.0 云端最终构建
+
+- 软件源码提交：`760b915328216240c47145c6f1e51da230a06a41`。
+- Windows 软件构建成功，冻结 exe 本机服务和打包资源检查成功：https://github.com/yoouke/1/actions/runs/41628600143
+- Linux/Windows 回归、真实 DSH 本机模型集成与 Chromium 流程检查全部成功：https://github.com/yoouke/1/actions/runs/41628600091
+- 构建产物包含 0.2.0 安装器、便携版和 SHA256SUMS；取回后已验证外层 ZIP 及两个内含文件校验值。
+- Actions 下载：https://github.com/yoouke/1/actions/runs/41628600143/artifacts/13225999168
+- 以上不新增真实 QQ/第三方账号或 Windows 桌面系统行为的验收结论。
