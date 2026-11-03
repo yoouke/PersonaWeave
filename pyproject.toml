@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "personaweave"
-version = "0.2.4"
+version = "0.2.5"
 description = "织灵 — local-first DIY AI persona host for DSH and QQ"
 requires-python = ">=3.11"
 dependencies = ["websockets>=13,<16", "psutil>=6,<8", "keyring>=25,<26", "discord.py>=2.4,<3"]

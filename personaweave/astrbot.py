@@ -3,7 +3,9 @@
 No QQ receiver, memory engine, image generator or DSH bridge is implemented here.
 """
 import copy
+import hashlib
 import json
+import time
 from urllib.parse import quote, urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, build_opener
 from .vendor.astrbot_api import Api
@@ -40,6 +42,9 @@ class LocalApi(Api):
         super().__init__(local_url(url))
         self.opener = build_opener(ProxyHandler({}), NoRedirect())
 
+    def call(self, method, path, body=None, timeout=10, **kwargs):
+        return super().call(method, path, body, timeout=timeout, **kwargs)
+
 
 class AstrBotPlugins:
     def __init__(self, host):
@@ -70,6 +75,8 @@ class AstrBotPlugins:
         # Require the real plugin API before recording a binding.
         self.checked(api.call('GET', '/plugins'))
         self.host.vault.set('astrbot:'+cid, password)
+        if bindings.get(cid, {}).get('url') != url:
+            self.store.set('astrbot_sync:'+cid, {})
         bindings[cid] = {'url': url, 'username': user}
         self.store.set('astrbot_bindings', bindings)
         if cid == self.host.config()['character_id'] and self.host.channel:
@@ -94,6 +101,7 @@ class AstrBotPlugins:
         bindings.pop(cid, None)
         self.store.set('astrbot_bindings', bindings)
         self.host.vault.set('astrbot:'+cid, '')
+        self.store.set('astrbot_sync:'+cid, {})
         return {'ok': True, 'message': '已移除管理连接；原生 AstrBot 服务和插件数据继续由原程序管理。'}
 
     @staticmethod
@@ -110,7 +118,7 @@ class AstrBotPlugins:
             if not isinstance(rows, list):
                 raise ValueError('AstrBot 插件列表格式不兼容，预期 4.29.3 API')
             installed = {p.get('name'): p for p in rows if isinstance(p, dict)}
-        return {'binding': self.bindings().get(cid), 'plugins': [
+        return {'binding': self.bindings().get(cid), 'sync': self.sync_status(cid) if cid else {}, 'plugins': [
             {'id': name, 'name': title, 'repository': 'https://github.com/'+repo,
              'source': 'DSQQ 配置包' if name != 'astrbot_plugin_dsh' else '现有 AstrBot→DSH 桥',
              'installed': name in installed, 'version': installed.get(name, {}).get('version', ''),
@@ -194,12 +202,60 @@ class AstrBotPlugins:
         return {'ok': True, 'message': '已配置现有桥接插件：只有主人私聊可发送 /dsh 任务。'}
 
     def sync_persona(self, cid):
+        with self.host.lock:
+            if cid in self.host.busy or cid in self.host.maintenance:
+                raise ValueError('角色正在运行或维护，请稍后同步')
+            self.host.maintenance.add(cid)
+        try:
+            return self._sync_persona(cid)
+        except Exception:
+            state = self.store.get('astrbot_sync:'+cid, {})
+            self.store.set('astrbot_sync:'+cid, {**state, 'error': '人格同步失败，本地设定已保留；请检查实例连接和主人白名单后重试。'})
+            raise
+        finally:
+            with self.host.lock:
+                self.host.maintenance.discard(cid)
+
+    @staticmethod
+    def persona_digest(char):
+        return hashlib.sha256((char['personality']+'\n'+char.get('behavior', '')).encode()).hexdigest()
+
+    def sync_status(self, cid):
+        char = self.store.character(cid)
+        state = self.store.get('astrbot_sync:'+cid, {})
+        return {'automatic': state.get('automatic', False),
+                'pending': state.get('digest') != self.persona_digest(char),
+                'last_success': state.get('last_success'), 'error': state.get('error', '')}
+
+    def sync_policy(self, cid, enabled):
+        self.store.character(cid)
+        if cid not in self.bindings():
+            raise ValueError('请先连接该角色的 AstrBot 实例')
+        if not isinstance(enabled, bool):
+            raise ValueError('自动同步设置必须为布尔值')
+        with self.host.lock:
+            state = self.store.get('astrbot_sync:'+cid, {})
+            self.store.set('astrbot_sync:'+cid, {**state, 'automatic': enabled})
+        return {'ok': True, 'message': '已开启自动同步：保存角色及重新联动时同步。' if enabled else '已关闭自动同步。'}
+
+    def sync_if_needed(self, cid):
+        state = self.sync_status(cid)
+        if state['automatic'] and state['pending']:
+            try:
+                return self.sync_persona(cid)
+            except Exception:
+                return {'ok': False, 'message': '本地角色已保存，AstrBot 同步未完成；请检查连接、主人白名单后重试。'}
+        return {'ok': True, 'message': '设定已同步。' if not state['pending'] else '未开启自动同步，请手动同步当前设定。'}
+
+    def _sync_persona(self, cid):
         char = self.store.character(cid)
         api = self.api(cid)
         cfg = copy.deepcopy(self.owner_instance(api))
         persona_id = 'personaweave-'+cid
         path = '/personas/'+quote(persona_id, safe='')
         current = api.call('GET', path)
+        if not Api.ok(current) and current.get('_http') != 404:
+            self.checked(current)
         body = {'system_prompt': char['personality']+'\n'+char.get('behavior', ''), 'tools': None}
         exists = Api.ok(current) and isinstance(current.get('data'), dict) and current['data'].get('persona_id') == persona_id
         if exists:
@@ -208,7 +264,61 @@ class AstrBotPlugins:
             self.checked(api.call('POST', '/personas', {**body, 'persona_id': persona_id, 'begin_dialogs': []}))
         cfg.setdefault('agent_runner', {}).setdefault('config', {}).setdefault('persona', {})['persona_id'] = persona_id
         self.checked(api.call('PUT', '/config-profiles/default', {'config': cfg}))
+        state = self.store.get('astrbot_sync:'+cid, {})
+        self.store.set('astrbot_sync:'+cid, {**state, 'digest': self.persona_digest(char),
+                                           'last_success': time.time(), 'error': ''})
         return {'ok': True, 'message': '已将当前角色设定同步到此 AstrBot 实例；插件记忆继续由原生插件管理。'}
+
+    def readiness(self, cid):
+        """Read-only checks; never claim QQ login or model execution from API health."""
+        self.store.character(cid)
+        checks = []
+        if cid not in self.bindings():
+            return {'checks': [{'name': 'AstrBot', 'state': 'error', 'message': '尚未连接此角色的独立实例。'}]}
+        try:
+            api = self.api(cid)
+            rows = self.checked(api.call('GET', '/plugins'))
+            if not isinstance(rows, list):
+                raise ValueError('插件列表格式不兼容')
+            checks.append({'name': 'AstrBot', 'state': 'ok', 'message': '后台认证与插件接口可用。'})
+        except Exception:
+            return {'checks': [{'name': 'AstrBot', 'state': 'error', 'message': '无法连接或后台认证失效，请检查地址、服务和账号。'}]}
+        try:
+            self.owner_instance(api)
+            checks.append({'name': '主人权限', 'state': 'ok', 'message': '仅主人私聊白名单检查通过。'})
+        except Exception:
+            checks.append({'name': '主人权限', 'state': 'error', 'message': '请绑定主人，并在原生控制台设为唯一管理员和私聊白名单。'})
+        sync = self.sync_status(cid)
+        checks.append({'name': '人格设定', 'state': 'warning' if sync['pending'] else 'ok',
+                       'message': '本地设定尚未同步，请点击同步。' if sync['pending'] else '本地设定与上次成功同步版本一致。'})
+        bridge = next((r for r in rows if isinstance(r, dict) and r.get('name') == 'astrbot_plugin_dsh'), {})
+        active = bridge.get('activated', bridge.get('enabled', False))
+        checks.append({'name': 'DSH 桥接插件', 'state': 'ok' if active else 'warning',
+                       'message': 'AstrBot 返回桥接已启用；不代表消息往返已验证。' if active else '桥接未安装或未启用，请安装并配置主人专用桥。'})
+        process = self.host.services.get('dsh-web')
+        live = bool(process and process.poll() is None and getattr(self.host, 'native_web_cid', None) == cid)
+        checks.append({'name': '本角色 DSH 控制台', 'state': 'ok' if live else 'warning',
+                       'message': '本角色进程正在运行。' if live else '本角色进程未运行；如使用外部 DSH，请在其控制台检查。'})
+        checks.append({'name': 'QQ 登录与真实消息', 'state': 'unknown',
+                       'message': '请在 AstrBot / NapCat 控制台检查；后台接口正常不能证明 QQ 已登录。'})
+        return {'checks': checks, 'sync': sync}
+
+    def prepare(self, cid):
+        """Idempotent preparation via existing installers; do not enable unconfigured tools."""
+        self.owner_instance(self.api(cid))
+        steps = []
+        operations = [('长期记忆插件', lambda: self.operate(cid, 'astrbot_plugin_livingmemory', 'install')),
+                      ('AstrBot 桥接插件', lambda: self.operate(cid, 'astrbot_plugin_dsh', 'install')),
+                      ('DSH ingress 插件', lambda: self.host.install_native('ingress', cid)),
+                      ('人格设定', lambda: self.sync_persona(cid))]
+        for name, operation in operations:
+            try:
+                operation()
+                steps.append({'name': name, 'state': 'ok'})
+            except Exception:
+                steps.append({'name': name, 'state': 'error'})
+                return {'ok': False, 'steps': steps, 'message': name+'准备失败；已完成的安装保留，可修复后重试。'}
+        return {'ok': True, 'steps': steps, 'message': '基础组件和人格已准备；请在原生控制台配置记忆服务、模型，再启动 DSH 并配置主人专用桥。插件不会提前启用。'}
 
     def owner_instance(self, api):
         owner = str(self.host.config()['owner'])

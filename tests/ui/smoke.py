@@ -62,6 +62,11 @@ with tempfile.TemporaryDirectory() as root:
                 page.get_by_role('heading', name=name, exact=True, level=1).wait_for()
                 page.wait_for_timeout(150)
                 assert not page.locator('#notice.error').inner_text() if page.locator('#notice.error').count() else True
+                if name == '插件与能力':
+                    page.get_by_role('button', name='一键准备默认角色基础组件', exact=True).wait_for()
+                    page.get_by_role('button', name='开启自动同步', exact=True).wait_for()
+                    page.get_by_role('button', name='逐项检查连接', exact=True).click()
+                    page.get_by_text('尚未连接此角色的独立实例。', exact=False).wait_for()
                 if name in ('运行总览', '偏好与安全', '插件与能力'):
                     page.evaluate('window.scrollTo(0,0)')
                     page.wait_for_timeout(100)

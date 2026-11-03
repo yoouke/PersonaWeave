@@ -66,6 +66,7 @@ def server(host, port=0):
                     routes = {'/api/status': host.status, '/api/config': host.config, '/api/characters': host.store.characters,
                               '/api/diagnostics': host.diagnostics, '/api/extensions': host.extensions.list,
                               '/api/astrbot/catalog': lambda: host.astrbot.catalog(query.get('character_id', [''])[0]),
+                              '/api/astrbot/readiness': lambda: host.astrbot.readiness(query.get('character_id', [''])[0]),
                               '/api/usage': lambda: host.models.report(query.get('days', ['30'])[0]),
                               '/api/events': lambda: host.store.rows('SELECT * FROM events WHERE id>? ORDER BY id DESC LIMIT 100', (int(query.get('after', ['0'])[0]),)),
                               '/api/setup': lambda: self.setup_info()}
@@ -110,6 +111,7 @@ def server(host, port=0):
                     '/api/astrbot/operate': lambda: host.astrbot.operate(cid, data['id'], data['action']),
                     '/api/astrbot/bridge': lambda: host.astrbot.bridge(cid, data['url'], data['token']),
                     '/api/astrbot/persona': lambda: host.astrbot.sync_persona(cid),
+                    '/api/astrbot/sync-policy': lambda: host.astrbot.sync_policy(cid, data.get('enabled')),
                     '/api/native/stop': host.stop_native_web,
                     '/api/memory/list': lambda: host.store.memories(cid, audience, data.get('query', '')),
                     '/api/memory/add': lambda: {'id': host.store.add_memory(cid, audience, data['content'], data.get('kind', 'event'))},

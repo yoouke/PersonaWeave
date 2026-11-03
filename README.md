@@ -8,7 +8,7 @@
 
 [Windows 软件构建与下载](https://github.com/yoouke/PersonaWeave/actions/workflows/windows.yml) · [功能与验证范围](docs/coverage.md) · [插件接入规范](docs/plugins.md) · [验证记录](docs/verification.md)
 
-当前软件版本 **0.2.4 开发预览**。已有实际功能和跨模块测试，不等于 PRD 全部验收完成。没有通过真实 QQ 账号、第三方模型服务、Windows 安装卸载/休眠恢复的端到端验收。未来能力与未验证项不伪装为已完成。
+当前软件版本 **0.2.5 开发预览**。已有实际功能和跨模块测试，不等于 PRD 全部验收完成。没有通过真实 QQ 账号、第三方模型服务、Windows 安装卸载/休眠恢复的端到端验收。未来能力与未验证项不伪装为已完成。
 
 **0.2.2 优先复用 [DSQQ](https://github.com/Jack-Cherish/DSQQ) 的 AstrBot / NapCat 及同款插件生态。**
 新增已有实例连接、原生插件管理、现成 AstrBot→DSH 桥和 `dsh-image-gen` 安装入口。
@@ -37,9 +37,16 @@
 - Windows 桌面/托盘/开机启动配置；可关闭窗口保持运行。
 - 颜色主题导入导出、界面图标与托盘图标自定义；角色资料包导入导出、可选私密备份、SQLite 数据库备份。
 
+## 0.2.5 联动优化
+
+- 基础组件一键准备：通过原生安装接口安装长期记忆、双端桥接并同步人格；重复执行保留 AstrBot 配置，新装插件保持停用，等待原生配置。
+- 可开启或关闭人格自动同步。保存角色及重新联动时同步变更；失败保留本地并显示待同步状态，下次联动重试。单向同步人格，不迁移插件记忆，也不会更新已运行的 DSH 会话。
+- 逐项检查后台接口、主人权限、人格同步、桥插件和本角色 DSH 进程；QQ 登录与真实消息仍标为待验证。
+- 阻止其他角色的 DSH 控制台被误报为当前角色启动成功。维护时暂停修改运行配置；失败的维护和联动不再显示已完成。
+
 ## 安装与使用
 
-普通用户从绿色 **Windows software** 构建的 Artifacts 下载 ZIP，解压后运行 `PersonaWeave-0.2.4-Windows-x64-Setup.exe`，或使用 Portable ZIP。软件包包含 Python 与桌面依赖，无需自行安装 Python。安装包未签名。Windows 需要微软 WebView2 运行时。
+普通用户从绿色 **Windows software** 构建的 Artifacts 下载 ZIP，解压后运行 `PersonaWeave-0.2.5-Windows-x64-Setup.exe`，或使用 Portable ZIP。软件包包含 Python 与桌面依赖，无需自行安装 Python。安装包未签名。Windows 需要微软 WebView2 运行时。
 
 1. 打开「偏好与安全」，填写运行 API 地址、模型、Key；创作 API 单独填写，并测试连接。
 2. DSH 路由默认 `personaweave`，由宿主配置为下方兼容 API；使用官方原生 Messages 路由时可选择 `deepseek-official`，其认证与接口由 DSH 管理。上下文大小需按模型实际能力设置。

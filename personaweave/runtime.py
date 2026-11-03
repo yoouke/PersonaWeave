@@ -3,12 +3,12 @@ import json, os, re, shutil, subprocess, threading, time, uuid
 from pathlib import Path
 
 class RuntimeServices:
-    def install_native(self, capability):
+    def install_native(self, capability, cid=None):
         """Use existing plugins in their documented web profile, never SDK-shim them."""
         packages = {'ingress': 'dsh-astrbot-ingress@0.3.23', 'image': 'dsh-image-gen@0.10.2'}
         if capability not in packages:
             raise ValueError('未知原生插件')
-        cid = self.config()['character_id']
+        cid = cid or self.config()['character_id']
         self.store.character(cid)
         process = self.services.get('dsh-web')
         if process and process.poll() is None:
@@ -39,7 +39,9 @@ class RuntimeServices:
         with self.lock:
             process = self.services.get('dsh-web')
             if process and process.poll() is None:
-                return {'ok': True, 'message': '已有一个原生 DSH 控制台在运行；切换角色前请先停止它。'}
+                if getattr(self, 'native_web_cid', None) != char['id']:
+                    raise ValueError('其他角色的 DSH 控制台仍在运行，请先停止，再启动当前角色；不会复用其他人格的进程')
+                return {'ok': True, 'message': '当前角色的原生 DSH 控制台已在运行。'}
             with socket.socket() as probe:
                 try:
                     probe.bind(('127.0.0.1', parsed.port))

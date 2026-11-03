@@ -206,3 +206,98 @@ class AstrBotTests(unittest.TestCase):
         finally:
             s.shutdown()
             s.server_close()
+
+    def test_auto_sync_save_retry_and_opt_out(self):
+        self.bind()
+        cid = self.a['id']
+        self.h.astrbot.sync_policy(cid, True)
+        saved = self.h.save_character({**self.a, 'personality': 'UPDATED'})
+        self.assertTrue(saved['upstream_sync']['ok'])
+        self.assertFalse(self.h.astrbot.sync_status(cid)['pending'])
+        before = len(self.calls)
+        self.h.save_character({**saved, 'name': 'renamed'})
+        self.assertEqual(len(self.calls), before)
+        self.config['admins_id'] = ['11111', '22222']
+        saved = self.h.save_character({**saved, 'personality': 'PENDING'})
+        self.assertFalse(saved['upstream_sync']['ok'])
+        self.assertEqual(self.h.store.character(cid)['personality'], 'PENDING')
+        self.assertTrue(self.h.astrbot.sync_status(cid)['pending'])
+        self.assertFalse(self.h.maintenance)
+        self.config['admins_id'] = ['11111']
+        self.assertTrue(self.h.connect()['ok'])
+        self.assertFalse(self.h.astrbot.sync_status(cid)['pending'])
+        self.h.astrbot.sync_policy(cid, False)
+        before = len(self.calls)
+        self.h.save_character({**saved, 'personality': 'LOCAL ONLY'})
+        self.assertEqual(len(self.calls), before)
+        self.assertTrue(self.h.astrbot.sync_status(cid)['pending'])
+
+    def test_readiness_does_not_claim_qq_login_or_mutate_config(self):
+        self.bind()
+        before = len(self.calls)
+        result = self.h.astrbot.readiness(self.a['id'])
+        self.assertEqual(result['checks'][-1]['state'], 'unknown')
+        self.assertFalse(any(method in ('PUT', 'PATCH', 'DELETE') for method, _, _ in self.calls[before:]))
+        self.config['platform_settings']['id_whitelist'] = ['qq:GroupMessage:123']
+        result = self.h.astrbot.readiness(self.a['id'])
+        self.assertEqual(next(c for c in result['checks'] if c['name'] == '主人权限')['state'], 'error')
+        self.assertNotIn('BACKEND-PASSWORD', json.dumps(result))
+        self.assertNotIn('UPSTREAM-BEARER', json.dumps(result))
+
+    def test_unbind_clears_sync_and_running_role_blocks_sync(self):
+        self.bind()
+        cid = self.a['id']
+        self.h.busy.add(cid)
+        with self.assertRaises(ValueError):
+            self.h.astrbot.sync_persona(cid)
+        self.h.busy.clear()
+        self.h.astrbot.sync_persona(cid)
+        self.h.astrbot.unbind(cid)
+        self.assertTrue(self.h.astrbot.sync_status(cid)['pending'])
+        self.assertFalse(self.h.astrbot.sync_status(cid)['automatic'])
+
+    def test_native_web_refuses_other_character_process(self):
+        self.h.services['dsh-web'] = SimpleNamespace(poll=lambda: None)
+        self.h.native_web_cid = self.b['id']
+        with self.assertRaisesRegex(ValueError, '其他角色'):
+            self.h.start_native_web()
+        self.h.native_web_cid = self.a['id']
+        self.assertTrue(self.h.start_native_web()['ok'])
+        self.h.services.clear()
+
+    def test_prepare_is_repeatable_and_never_enables_unconfigured_plugins(self):
+        self.bind()
+        with patch.object(self.h, 'install_native', return_value={'ok': True}) as native:
+            self.assertTrue(self.h.astrbot.prepare(self.a['id'])['ok'])
+            self.assertTrue(self.h.astrbot.prepare(self.a['id'])['ok'])
+            native.assert_called_with('ingress', self.a['id'])
+        self.assertEqual(len([c for c in self.calls if c[1].endswith('/install/github')]), 2)
+        self.assertTrue(all(not p['activated'] for p in self.plugins))
+        self.assertFalse(self.h.astrbot.sync_status(self.a['id'])['pending'])
+        self.config['admins_id'] = ['22222']
+        before = len(self.calls)
+        with self.assertRaises(ValueError):
+            self.h.astrbot.prepare(self.a['id'])
+        self.assertFalse(any(m in ('PUT', 'PATCH', 'DELETE') or p.endswith('/install/github') for m, p, _ in self.calls[before:]))
+
+    def test_prepare_reports_partial_failure_and_preserves_progress(self):
+        self.bind()
+        with patch.object(self.h, 'install_native', side_effect=RuntimeError('PRIVATE-KEY')):
+            result = self.h.astrbot.prepare(self.a['id'])
+        self.assertFalse(result['ok'])
+        self.assertEqual([s['state'] for s in result['steps']], ['ok', 'ok', 'error'])
+        self.assertEqual(len(self.plugins), 2)
+        self.assertNotIn('PRIVATE-KEY', json.dumps(result))
+
+    def test_relink_failure_is_not_reported_as_completed_maintenance(self):
+        import time
+        with patch.object(self.h, 'connect', return_value={'ok': False, 'message': 'not ready'}), patch.object(self.h, 'diagnostics', return_value={}):
+            result = self.h.relink()
+            self.assertFalse(result['ok'])
+            with patch.object(self.h, 'relink', return_value=result):
+                task = self.h.job('relink')
+                deadline = time.monotonic()+2
+                while self.h.jobs[task['id']]['state'] == 'running' and time.monotonic() < deadline:
+                    time.sleep(.01)
+                self.assertEqual(self.h.jobs[task['id']]['state'], 'error')
+                self.assertIn('qq', self.h.jobs[task['id']]['error'])

@@ -1,2 +1,2 @@
 """PersonaWeave: user-owned identities, replaceable agent engines."""
-__version__ = '0.2.4'
+__version__ = '0.2.5'

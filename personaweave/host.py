@@ -45,6 +45,8 @@ class Host(RuntimeServices):
         with self.lock:
             if self.busy:
                 raise ValueError('请先停止当前任务再修改运行配置')
+            if self.maintenance or any(j['state'] == 'running' for j in self.jobs.values()):
+                raise ValueError('维护正在进行，请完成后再修改运行配置')
             old = self.config()
             changed = {k: v for k, v in data.items() if k in DEFAULTS}
             candidate = {**old, **changed}
@@ -101,9 +103,13 @@ class Host(RuntimeServices):
                 raise ValueError('未知主题字段：'+key)
 
     def save_character(self, data):
-        if data.get('id') in self.busy or data.get('id') in self.maintenance:
-            raise ValueError('请先停止角色')
-        return self.store.save_character(data)
+        with self.lock:
+            if data.get('id') in self.busy or data.get('id') in self.maintenance:
+                raise ValueError('请先停止角色')
+            char = self.store.save_character(data)
+        if char['id'] in self.astrbot.bindings():
+            char['upstream_sync'] = self.astrbot.sync_if_needed(char['id'])
+        return char
 
     def identity(self, platform, uid, group=''):
         c = self.config()
@@ -132,7 +138,9 @@ class Host(RuntimeServices):
                 self.channel = None
             self.channels.pop('qq', None)
             self.astrbot.catalog(c['character_id'])
-            return {'ok': True, 'message': 'AstrBot 插件接口正常；QQ 消息由其原生插件处理，登录状态请查看 AstrBot / NapCat 控制台。'}
+            sync = self.astrbot.sync_if_needed(c['character_id'])
+            return {'ok': sync['ok'], 'message': 'AstrBot 插件接口正常；'+sync['message']+' QQ 登录状态请查看原生控制台。',
+                    'readiness': self.astrbot.readiness(c['character_id'])}
         if self.channel:
             self.channel.close()
         self.channel = OneBot(c['onebot_url'], self.vault.get('onebot_token'), self.receive)
@@ -411,6 +419,7 @@ class Host(RuntimeServices):
                       'relink': self.relink, 'backup': self.store.backup,
                       'native_ingress': lambda: self.install_native('ingress'),
                       'native_image': lambda: self.install_native('image'),
+                      'upstream_prepare': lambda: self.astrbot.prepare(self.config()['character_id']),
                       'native_web': self.start_native_web}
         if action not in operations:
             raise ValueError('无效后台任务')
@@ -423,7 +432,11 @@ class Host(RuntimeServices):
             record = self.jobs[jid] = {'id': jid, 'action': action, 'state': 'running', 'started': time.time()}
         def run():
             try:
-                record.update(result=operations[action](), state='completed')
+                result = operations[action]()
+                if isinstance(result, dict) and result.get('ok') is False:
+                    record.update(result=result, state='error', error=self.redact(result.get('message', '维护未完成，请检查失败步骤。')))
+                else:
+                    record.update(result=result, state='completed')
             except Exception as e:
                 record.update(error=self.redact(str(e)), state='error')
         threading.Thread(target=run, daemon=True).start()
@@ -445,7 +458,9 @@ class Host(RuntimeServices):
                 checks.append({'service': platform, **result})
             except Exception as e:
                 checks.append({'service': platform, 'error': str(e)})
-        return {'checks': checks, 'diagnostics': self.diagnostics()}
+        failed = [item['service'] for item in checks if item.get('error') or item.get('ok') is False]
+        return {'ok': not failed, 'message': '未完成联动：'+ '、'.join(failed) if failed else '连接检查完成；QQ 登录仍以协议端状态为准。',
+                'checks': checks, 'diagnostics': self.diagnostics()}
 
     def start_background(self):
         if self.config()['auto_connect']:
