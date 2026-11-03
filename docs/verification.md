@@ -23,7 +23,7 @@
 - 打包后的 exe 成功启动本机 HTTP 服务；首页与 app.js 资源检查通过。
 - 构建生成便携版 ZIP、安装包和 SHA256SUMS，已上传 Actions 构建产物。
 
-构建记录：https://github.com/yoouke/1/actions/runs/41616053661
+构建记录：https://github.com/yoouke/PersonaWeave/actions/runs/41616053661
 
 以上不覆盖真实 QQ 扫码、模型 API、桌面 GUI/托盘交互、安装器实际安装与卸载、DSH 工具执行和重启恢复。未将这些项目标为已验收。
 
@@ -42,10 +42,10 @@
 ## 0.2.0 云端最终构建
 
 - 软件源码提交：`760b915328216240c47145c6f1e51da230a06a41`。
-- Windows 软件构建成功，冻结 exe 本机服务和打包资源检查成功：https://github.com/yoouke/1/actions/runs/41628600143
-- Linux/Windows 回归、真实 DSH 本机模型集成与 Chromium 流程检查全部成功：https://github.com/yoouke/1/actions/runs/41628600091
+- Windows 软件构建成功，冻结 exe 本机服务和打包资源检查成功：https://github.com/yoouke/PersonaWeave/actions/runs/41628600143
+- Linux/Windows 回归、真实 DSH 本机模型集成与 Chromium 流程检查全部成功：https://github.com/yoouke/PersonaWeave/actions/runs/41628600091
 - 构建产物包含 0.2.0 安装器、便携版和 SHA256SUMS；取回后已验证外层 ZIP 及两个内含文件校验值。
-- Actions 下载：https://github.com/yoouke/1/actions/runs/41628600143/artifacts/13225999168
+- Actions 下载：https://github.com/yoouke/PersonaWeave/actions/runs/41628600143/artifacts/13225999168
 - 以上不新增真实 QQ/第三方账号或 Windows 桌面系统行为的验收结论。
 
 ## 0.2.1 视觉更新验证
@@ -59,9 +59,9 @@
 ### 0.2.1 云端构建结果
 
 - 软件源码：`89761ef4341fdd0ccb0febd3b5abdeeedab88085`。
-- Windows 构建、冻结程序启动及打包页面资源检查成功：https://github.com/yoouke/1/actions/runs/41641387700
-- Linux / Windows 回归、真实 DSH 本机模型及 Chromium 界面流程成功：https://github.com/yoouke/1/actions/runs/41641387728
-- Artifact 提供 0.2.1 Setup.exe、Portable.zip 与 SHA256SUMS：https://github.com/yoouke/1/actions/runs/41641387700/artifacts/13231839614
+- Windows 构建、冻结程序启动及打包页面资源检查成功：https://github.com/yoouke/PersonaWeave/actions/runs/41641387700
+- Linux / Windows 回归、真实 DSH 本机模型及 Chromium 界面流程成功：https://github.com/yoouke/PersonaWeave/actions/runs/41641387728
+- Artifact 提供 0.2.1 Setup.exe、Portable.zip 与 SHA256SUMS：https://github.com/yoouke/PersonaWeave/actions/runs/41641387700/artifacts/13231839614
 - 本地 wheel 包含全部六项页面与品牌资源；ICO 包含 16–256px 共七个尺寸。
 
 ## 0.2.2 上游插件复用验证
@@ -85,11 +85,11 @@
 
 - 软件源码：`b221dc75f0d7ca3c1de7c9c567f0c3b7c71981d2`。
 - Linux / Windows 回归、真实 DSH SDK 与原生网页认证、Chromium 界面流程全部成功：
-  https://github.com/yoouke/1/actions/runs/41647659834
+  https://github.com/yoouke/PersonaWeave/actions/runs/41647659834
 - 测试目录共 43 项；不设置真实 DSH CLI 的普通作业跳过两项，集成作业执行全部测试。
 - Windows 安装包与便携版、冻结服务启动和新增上游插件界面资源检查成功：
-  https://github.com/yoouke/1/actions/runs/41647660343
-- Artifact：https://github.com/yoouke/1/actions/runs/41647660343/artifacts/13235472184
+  https://github.com/yoouke/PersonaWeave/actions/runs/41647660343
+- Artifact：https://github.com/yoouke/PersonaWeave/actions/runs/41647660343/artifacts/13235472184
 - 取回 ZIP 为 43,248,949 字节，SHA256：
   `82bba0239864b6f2416f1e76e76999299172a10b0c908fbee07a44c4f86045f1`。
   已按内含 SHA256SUMS 核对 Setup.exe 和 Portable.zip。

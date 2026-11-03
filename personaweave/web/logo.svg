@@ -1,9 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <title>织灵 · 交织的灵感</title>
-  <path d="M20 12c-8 0-12 9-6 15l23 23c6 6 15 2 15-6 0-3-1-5-3-7L27 15c-2-2-4-3-7-3Z" stroke="#7562D9" stroke-width="7" stroke-linejoin="round"/>
-  <path d="M44 12c8 0 12 9 6 15L27 50c-6 6-15 2-15-6 0-3 1-5 3-7l22-22c2-2 4-3 7-3Z" stroke="#F1AB98" stroke-width="7" stroke-linejoin="round"/>
-  <path d="M15 28l9 9M40 28l9 9" stroke="#FAF9FD" stroke-width="11"/>
-  <path d="M15 28l9 9M40 28l9 9" stroke="#7562D9" stroke-width="7"/>
-  <path d="M32 25c0 4 3 7 7 7-4 0-7 3-7 7 0-4-3-7-7-7 4 0 7-3 7-7Z" fill="#FAF9FD"/>
-  <circle cx="55" cy="9" r="3" fill="#F1AB98"/>
+  <title>织灵 · 折光蝶</title>
+  <defs>
+    <linearGradient id="pw-wing" x1="10" y1="14" x2="34" y2="52" gradientUnits="userSpaceOnUse"><stop stop-color="#AB92F5"/><stop offset="1" stop-color="#6750C7"/></linearGradient>
+    <path id="pw-left" d="M30.5 30C23.5 16 12 9 8.5 17.5C5 26 13.5 36 23.5 38.5C14 40.5 11.5 48.5 17 52C23 56 29 48 32 39C33.5 35 32.5 33 30.5 30Z"/>
+  </defs>
+  <use href="#pw-left" fill="url(#pw-wing)"/>
+  <use href="#pw-left" transform="translate(64 0) scale(-1 1)" fill="url(#pw-wing)"/>
+  <path d="M32 25C35 30 36 35.5 32 44C28 35.5 29 30 32 25Z" fill="#F2B69B"/>
+  <circle cx="32" cy="20.5" r="2.5" fill="#F2B69B"/>
 </svg>

@@ -1,5 +1,11 @@
 # 更新记录
 
+## 0.2.3
+
+- GitHub 仓库从 `yoouke/1` 正式改名为 `yoouke/PersonaWeave`，同步更新文档、构建入口及发布脚本链接。
+- 将旧线环 Logo 更换为原创「折光蝶」，同步界面标记、托盘 PNG 和多尺寸 Windows ICO。
+- README 展示应用标记，补充新的品牌设计说明；现有自定义图标设置继续保留。
+
 ## 0.2.2
 
 - 依据指定 DSQQ 源码接入其 AstrBot 插件生态；复用 MIT 配置包的 API helper，附带署名及许可。

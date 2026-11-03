@@ -17,7 +17,7 @@ if ($LASTEXITCODE -ne 0) {
 $login = & gh api user --jq .login
 if ($LASTEXITCODE -ne 0) { throw 'Cannot verify GitHub account.' }
 if ($login.Trim() -ne 'yoouke') { throw "Authenticated account is $login; expected yoouke. Switch your GitHub CLI account before publishing." }
-$repo = 'yoouke/1'
+$repo = 'yoouke/PersonaWeave'
 if (-not (Test-Path .git)) {
     Run-Checked 'git' @('init', '-b', 'main')
 }
@@ -33,8 +33,8 @@ if ($LASTEXITCODE -ne 0) {
 }
 $origin = & git remote get-url origin 2>$null
 if ($LASTEXITCODE -ne 0) {
-    Run-Checked 'git' @('remote', 'add', 'origin', 'https://github.com/yoouke/1.git')
-} elseif ($origin -notmatch '^https://github.com/yoouke/1(?:\.git)?$' -and $origin -ne 'git@github.com:yoouke/1.git') {
+    Run-Checked 'git' @('remote', 'add', 'origin', 'https://github.com/yoouke/PersonaWeave.git')
+} elseif ($origin -notmatch '^https://github.com/yoouke/PersonaWeave(?:\.git)?$' -and $origin -ne 'git@github.com:yoouke/PersonaWeave.git') {
     throw 'Existing remote points to a different repository. No changes pushed.'
 }
 Run-Checked 'gh' @('auth', 'setup-git')

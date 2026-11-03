@@ -1,13 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
-  <title>PersonaWeave application icon</title>
-  <rect x="4" y="4" width="248" height="248" rx="64" fill="#F2EEFD"/>
-  <rect x="4" y="4" width="248" height="248" rx="64" stroke="#E5DEF7" stroke-width="3"/>
-  <g transform="translate(29 29) scale(3.08)">
-    <path d="M20 12c-8 0-12 9-6 15l23 23c6 6 15 2 15-6 0-3-1-5-3-7L27 15c-2-2-4-3-7-3Z" stroke="#7562D9" stroke-width="7" stroke-linejoin="round"/>
-    <path d="M44 12c8 0 12 9 6 15L27 50c-6 6-15 2-15-6 0-3 1-5 3-7l22-22c2-2 4-3 7-3Z" stroke="#F1AB98" stroke-width="7" stroke-linejoin="round"/>
-    <path d="M15 28l9 9M40 28l9 9" stroke="#F2EEFD" stroke-width="11"/>
-    <path d="M15 28l9 9M40 28l9 9" stroke="#7562D9" stroke-width="7"/>
-    <path d="M32 25c0 4 3 7 7 7-4 0-7 3-7 7 0-4-3-7-7-7 4 0 7-3 7-7Z" fill="#F2EEFD"/>
-    <circle cx="55" cy="9" r="3" fill="#F1AB98"/>
+  <title>织灵 PersonaWeave · 应用图标</title>
+  <defs>
+    <linearGradient id="pw-tile" x1="38" y1="16" x2="224" y2="246" gradientUnits="userSpaceOnUse"><stop stop-color="#9273E1"/><stop offset="1" stop-color="#5841AE"/></linearGradient>
+    <path id="pw-left" d="M30.5 30C23.5 16 12 9 8.5 17.5C5 26 13.5 36 23.5 38.5C14 40.5 11.5 48.5 17 52C23 56 29 48 32 39C33.5 35 32.5 33 30.5 30Z"/>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="59" fill="url(#pw-tile)"/>
+  <rect x="9" y="9" width="238" height="238" rx="58" stroke="#FFFFFF" stroke-opacity=".15" stroke-width="2"/>
+  <g transform="translate(25 24) scale(3.22)">
+    <use href="#pw-left" fill="#F8F4FF"/>
+    <use href="#pw-left" transform="translate(64 0) scale(-1 1)" fill="#E4D9FF"/>
+    <path d="M32 25C35 30 36 35.5 32 44C28 35.5 29 30 32 25Z" fill="#FFD4B4"/>
+    <circle cx="32" cy="20.5" r="2.5" fill="#FFD4B4"/>
   </g>
 </svg>
