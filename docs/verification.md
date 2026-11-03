@@ -80,3 +80,17 @@
 - 覆盖本角色进程信标匹配后自动配置原生桥、用户人格通过原生 API 同步且保留平台配置。
 - 未登录真实 QQ，未完成真实 AstrBot 插件依赖加载、长期记忆检索、付费图像生成或 QQ 图片回传。
   不能将 HTTP 合约测试和 ingress 存活检查写成这些功能的端到端验收。
+
+### 0.2.2 云端构建结果
+
+- 软件源码：`b221dc75f0d7ca3c1de7c9c567f0c3b7c71981d2`。
+- Linux / Windows 回归、真实 DSH SDK 与原生网页认证、Chromium 界面流程全部成功：
+  https://github.com/yoouke/1/actions/runs/41647659834
+- 测试目录共 43 项；不设置真实 DSH CLI 的普通作业跳过两项，集成作业执行全部测试。
+- Windows 安装包与便携版、冻结服务启动和新增上游插件界面资源检查成功：
+  https://github.com/yoouke/1/actions/runs/41647660343
+- Artifact：https://github.com/yoouke/1/actions/runs/41647660343/artifacts/13235472184
+- 取回 ZIP 为 43,248,949 字节，SHA256：
+  `82bba0239864b6f2416f1e76e76999299172a10b0c908fbee07a44c4f86045f1`。
+  已按内含 SHA256SUMS 核对 Setup.exe 和 Portable.zip。
+- 以上不新增真实 QQ、付费图像服务、长期记忆插件或 Windows 桌面系统行为的验收结论。
