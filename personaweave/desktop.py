@@ -21,11 +21,10 @@ def autostart(enabled, data=None):
 def launch(url,host):
     import webview
     import pystray
-    from PIL import Image,ImageDraw
+    from PIL import Image
     window=webview.create_window('织灵 · PersonaWeave',url,width=1220,height=820,min_size=(900,620))
-    image=Image.new('RGBA',(64,64),(0,0,0,0));d=ImageDraw.Draw(image)
-    d.rounded_rectangle((3,3,61,61),radius=18,fill='#64745b')
-    d.line([(17,40),(26,20),(38,44),(47,24)],fill='white',width=4)
+    with Image.open(Path(__file__).parent/'web'/'icon.png') as source:
+        image=source.convert('RGBA').resize((64,64))
     custom=host.config().get('theme',{}).get('icon')
     if custom:
         import base64,io

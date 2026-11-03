@@ -32,6 +32,8 @@ with tempfile.TemporaryDirectory() as root:
                 page.add_style_tag(content=css+"body,button,input,select,textarea{font-family:'Noto Sans SC',sans-serif!important}")
                 page.evaluate('document.fonts.ready')
             page.get_by_role('heading', name='与角色交谈 · 交付任务').wait_for()
+            page.screenshot(path=str(out/'visual-overview-empty.png'), full_page=True)
+            page.screenshot(path=str(out/'visual-overview-preview.png'))
             page.locator('nav').get_by_role('button', name='人格工坊').click()
             page.get_by_label('角色名', exact=True).fill('测试角色')
             page.get_by_label('人格文案', exact=True).fill('自由创作的人格；测试 <script> 不应执行。')
@@ -39,6 +41,9 @@ with tempfile.TemporaryDirectory() as root:
             page.get_by_role('button', name='保存角色', exact=True).click()
             page.get_by_text('角色已保存。', exact=True).wait_for()
             assert len(host.store.characters()) == 1
+            page.evaluate('window.scrollTo(0,0)')
+            page.wait_for_timeout(150)
+            page.screenshot(path=str(out/'visual-character-studio.png'), full_page=True)
             for name, heading in [('记忆与关系', '长期记忆 · 事件 · 人物关系'), ('知识文档', '角色知识库')]:
                 page.locator('nav').get_by_role('button', name=name, exact=True).click()
                 page.get_by_role('heading', name=heading, exact=True).wait_for()
@@ -58,8 +63,17 @@ with tempfile.TemporaryDirectory() as root:
                 page.wait_for_timeout(150)
                 assert not page.locator('#notice.error').inner_text() if page.locator('#notice.error').count() else True
                 if name in ('运行总览', '偏好与安全', '插件与能力'):
+                    page.evaluate('window.scrollTo(0,0)')
+                    page.wait_for_timeout(100)
                     page.screenshot(path=str(out/f'ui-{i}.png'), full_page=True)
-            # Session refresh retains local management authentication.
+            for width in [900, 390]:
+                page.set_viewport_size({'width':width,'height':900})
+                page.wait_for_timeout(100)
+                assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth'), f'horizontal overflow at {width}'
+                page.screenshot(path=str(out/f'visual-width-{width}.png'), full_page=True)
+            page.set_viewport_size({'width':1360,'height':950})
+            # Skip link fragments must not replace local authentication on refresh.
+            page.evaluate("location.hash='view'")
             page.reload()
             page.get_by_role('heading', name='与角色交谈 · 交付任务').wait_for()
             assert not errors, errors
