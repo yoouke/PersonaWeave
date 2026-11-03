@@ -7,3 +7,5 @@ build/
 .env
 state/
 *.log
+test-results/
+.test-runtime/

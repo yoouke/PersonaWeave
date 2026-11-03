@@ -14,6 +14,7 @@ def main():
     args=p.parse_args(); lock=InstanceLock(args.data); host=Host(args.data); httpd,token=server(host,args.port)
     url=f'http://127.0.0.1:{httpd.server_port}/#'+token
     threading.Thread(target=httpd.serve_forever,daemon=True).start()
+    host.start_background()
     try:
         if not args.browser:
             try:

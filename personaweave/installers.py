@@ -63,3 +63,37 @@ def install_napcat(root,selected):
         extract(archive,Path(tmp)/'out');target.parent.mkdir(parents=True,exist_ok=True)
         shutil.move(str(Path(tmp)/'out'),target)
     return {'ok':True,'version':release['tag_name'],'message':'已校验并安装。首次登录与 OneBot 正向 WebSocket 配置请使用 NapCat 官方控制台。'}
+
+def configure_napcat(root, bot_qq, url, token):
+    """Configure the verified upstream OneBot schema; retain unrelated settings."""
+    import re
+    from urllib.parse import urlsplit
+    from .store import atomic_text
+    if not re.fullmatch(r'\d{5,12}', str(bot_qq)):
+        raise ValueError('请填写作为机器人使用的 QQ 账号')
+    parsed = urlsplit(url)
+    if parsed.hostname != '127.0.0.1' or parsed.scheme != 'ws' or parsed.path not in ('', '/') or not parsed.port:
+        raise ValueError('自动配置使用 ws://127.0.0.1:端口，不包含路径')
+    if not token:
+        raise ValueError('请先保存 OneBot Token')
+    root = Path(root)/'runtime'/'napcat'
+    if not root.exists():
+        raise ValueError('请先安装 NapCat')
+    config_dir = root/'napcat'/'config' if (root/'napcat').is_dir() else root/'config'
+    config_dir.mkdir(parents=True, exist_ok=True)
+    path = config_dir/f'onebot11_{bot_qq}.json'
+    old = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+    network = old.setdefault('network', {})
+    servers = network.setdefault('websocketServers', [])
+    servers[:] = [s for s in servers if s.get('name') != 'PersonaWeave']
+    servers.append({'name': 'PersonaWeave', 'enable': True, 'host': '127.0.0.1', 'port': parsed.port,
+                    'messagePostFormat': 'array', 'reportSelfMessage': False, 'token': token,
+                    'enableForcePushEvent': True, 'debug': False, 'heartInterval': 30000})
+    if path.exists():
+        backup = path.with_suffix('.json.backup')
+        if not backup.exists():
+            shutil.copy2(path, backup)
+    atomic_text(path, json.dumps(old, ensure_ascii=False, indent=2))
+    if os.name != 'nt':
+        path.chmod(0o600)
+    return {'ok': True, 'message': '已按上游格式写入 OneBot 配置；请重启 NapCat 后重新联动。协议端配置按上游要求包含连接 Token。'}
