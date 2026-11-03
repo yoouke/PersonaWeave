@@ -13,3 +13,6 @@ desktop = ["pywebview>=5,<7", "pystray>=0.19", "Pillow>=10", "pyinstaller>=6"]
 personaweave = "personaweave.__main__:main"
 [tool.setuptools.package-data]
 personaweave = ["web/*"]
+[tool.setuptools.packages.find]
+include = ["personaweave*"]
+exclude = ["tests*", "packaging*"]
