@@ -119,3 +119,11 @@
 - 新增纯对话注入与工具限制检查、公共说明导出及不改写工作区 AGENTS.md 的检查。
 - wheel 打包已确认包含说明 Markdown 与注入模块；Windows spec 显式包含说明资源。
 - Windows 软件构建及最终云端结果以本提交对应 CI 为准。真实 QQ、付费服务与 Windows 桌面系统行为的边界不变。
+
+### 0.2.6 云端结果
+
+- 源码：`8180e128040821811120349026e3bb8f99579e66`。
+- Linux / Windows 回归、53 项真实 DSH 本机集成与 Chromium 检查通过：https://github.com/yoouke/PersonaWeave/actions/runs/41671949671
+- Windows 软件构建与冻结服务检查通过：https://github.com/yoouke/PersonaWeave/actions/runs/41671949693
+- 安装包与便携版：https://github.com/yoouke/PersonaWeave/actions/runs/41671949693/artifacts/13247738807
+- 不代表真实 QQ、付费服务或 Windows GUI 系统行为已验收。
