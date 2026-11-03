@@ -55,3 +55,11 @@
 - 新增 900px / 390px 宽度检查，无文档横向溢出；检查了中文界面与 Logo 导出。
 - 界面、托盘与 Windows 图标复用同一原创资源；SVG/PNG 由本机静态资源提供。
 - Windows 打包与冻结资源检查结果以本版本对应 Actions 为准；不新增真实 QQ 账号或桌面系统行为的验收结论。
+
+### 0.2.1 云端构建结果
+
+- 软件源码：`89761ef4341fdd0ccb0febd3b5abdeeedab88085`。
+- Windows 构建、冻结程序启动及打包页面资源检查成功：https://github.com/yoouke/1/actions/runs/41641387700
+- Linux / Windows 回归、真实 DSH 本机模型及 Chromium 界面流程成功：https://github.com/yoouke/1/actions/runs/41641387728
+- Artifact 提供 0.2.1 Setup.exe、Portable.zip 与 SHA256SUMS：https://github.com/yoouke/1/actions/runs/41641387700/artifacts/13231839614
+- 本地 wheel 包含全部六项页面与品牌资源；ICO 包含 16–256px 共七个尺寸。
